@@ -5,6 +5,11 @@
   --foreground: #171717;
 }
 
+:root {
+  /* change this to any color you like */
+  --clearance-num-color: #dc2626; /* red-600 */
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
