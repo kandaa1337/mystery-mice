@@ -1,15 +1,31 @@
+// app/components/SlotBoard.jsx
 "use client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 export default function SlotBoard() {
-  // keep your tuned sizes
+  // Design reference (kept for ratios)
   const SIZE = { w: 900, h: 700 };
   const INSET = { top: 20, right: 150, bottom: 50, left: 150 };
-  const GAP = 6;
-  const LINE_THICKNESS = 8;
+  const GAP = 6; // px at design size
+  const LINE_THICKNESS = 8; // px at design size
 
-  // put these files in /public/symbols/
+  // Precompute % values so everything scales with the container
+  const metrics = useMemo(() => {
+    const innerW = SIZE.w - INSET.left - INSET.right;
+    const innerH = SIZE.h - INSET.top - INSET.bottom;
+    return {
+      insetPct: {
+        top: `${(INSET.top / SIZE.h) * 100}%`,
+        right: `${(INSET.right / SIZE.w) * 100}%`,
+        bottom: `${(INSET.bottom / SIZE.h) * 100}%`,
+        left: `${(INSET.left / SIZE.w) * 100}%`,
+      },
+      gapPct: `${(GAP / innerW) * 100}%`,
+      lineWidthPct: `${(LINE_THICKNESS / innerW) * 100}%`,
+    };
+  }, []);
+
   const IMG_BASE = "/symbols";
   const SYMBOLS = [
     "A.png",
@@ -25,11 +41,9 @@ export default function SlotBoard() {
 
   const rows = Array.from({ length: 6 }, (_, r) => r);
   const cols = Array.from({ length: 6 }, (_, c) => c);
-
   const [grid, setGrid] = useState(null);
 
   useEffect(() => {
-    // build a 6x6 grid of random filenames (client-only)
     const picks = Array.from({ length: 6 }, () =>
       Array.from({ length: 6 }, () => {
         const idx = Math.floor(Math.random() * SYMBOLS.length);
@@ -40,9 +54,13 @@ export default function SlotBoard() {
   }, []);
 
   return (
-    <div className="h-screen w-full flex justify-center">
-      <div className="relative" style={{ width: SIZE.w, height: SIZE.h }}>
-        {/* Outer decorative border */}
+    <div className="w-full h-full flex items-center justify-center">
+      {/* This box scales to screen while keeping the original aspect ratio */}
+      <div
+        className="relative"
+        style={{ width: "min(92vw, 900px)", aspectRatio: "900 / 700" }}
+      >
+        {/* Decorative border always fits inside the box */}
         <Image
           src="/ui/slot_border.png"
           alt="Slot Border"
@@ -51,17 +69,17 @@ export default function SlotBoard() {
           priority
         />
 
-        {/* Inner play area */}
+        {/* Play area uses % insets so it scales perfectly */}
         <div
           className="absolute"
           style={{
-            top: INSET.top,
-            right: INSET.right,
-            bottom: INSET.bottom,
-            left: INSET.left,
+            top: metrics.insetPct.top,
+            right: metrics.insetPct.right,
+            bottom: metrics.insetPct.bottom,
+            left: metrics.insetPct.left,
           }}
         >
-          {/* Vertical lines between columns (behind cells) */}
+          {/* Vertical separators behind cells */}
           <div className="absolute inset-0 pointer-events-none">
             {cols.slice(1).map((c) => {
               const leftPct = (c / 6) * 100;
@@ -69,27 +87,26 @@ export default function SlotBoard() {
                 <div
                   key={`v-${c}`}
                   className="absolute top-0 h-full -translate-x-1/2"
-                  style={{ left: `${leftPct}%`, width: LINE_THICKNESS }}
+                  style={{ left: `${leftPct}%`, width: metrics.lineWidthPct }}
                 >
                   <Image
                     src="/ui/line.png"
                     alt="Vertical separator"
                     fill
                     className="object-cover"
-                    sizes="(max-width: 900px) 100vw, 900px"
                   />
                 </div>
               );
             })}
           </div>
 
-          {/* 6x6 cells (SSR-safe: always render 36 cells) */}
+          {/* 6x6 grid; gap in % keeps spacing consistent at any size */}
           <div
             className="relative grid w-full h-full"
             style={{
               gridTemplateColumns: "repeat(6, 1fr)",
               gridTemplateRows: "repeat(6, 1fr)",
-              gap: GAP,
+              gap: metrics.gapPct,
               zIndex: 5,
             }}
           >
@@ -101,12 +118,10 @@ export default function SlotBoard() {
                     {name && (
                       <Image
                         src={`${IMG_BASE}/${name}`}
-                        alt={(name || "")
-                          .replace(".png", "")
-                          .replaceAll("_", " ")}
+                        alt={name.replace(".png", "").replaceAll("_", " ")}
                         fill
                         className="object-contain"
-                        sizes="(max-width: 900px) 100vw, 900px"
+                        sizes="100vw"
                       />
                     )}
                   </div>
