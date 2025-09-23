@@ -12,7 +12,7 @@ export default function BetControls({ credit = 100000, bet = 2, onSpin }) {
     setTimeout(() => {
       onSpin?.();
       setIsSpinning(false);
-    }, 1000);
+    }, 0);
   };
 
   return (
