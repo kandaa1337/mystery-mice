@@ -5,11 +5,11 @@ import SlotBoard from "./components/SlotBoard";
 import GameLoading from "./components/GameLoading";
 
 export default function Home() {
-  const [ready, setReady] = useState(false);
+  // const [ready, setReady] = useState(false);
 
-  if (!ready) {
-    return <GameLoading onComplete={() => setReady(true)} />;
-  }
+  // if (!ready) {
+  //   return <GameLoading onComplete={() => setReady(true)} />;
+  // }
 
   return (
     <main className="relative h-dvh w-dvw overflow-hidden bg-[#0b0f1a]">
