@@ -7,11 +7,11 @@ export const SYMBOLS = [
   "K.png",
   "Q.png",
   "cigarate.png",
+  "level_clearance.png",
   "cap.png",
   "police_mice.png",
   "detective_mice.png",
   "mafia_mice.png",
-  "level_clearance.png",
 ];
  
 const CLEARANCE_IMG = "level_clearance.png";
