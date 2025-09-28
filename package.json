@@ -2,18 +2,23 @@
   "name": "mystery-mice",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://kandaa1337.github.io/mystery-mice",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d out"
   },
   "dependencies": {
-    "next": "^15.5.3",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "next": "^15.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "gh-pages": "^6.3.0",
     "tailwindcss": "^4"
   }
 }
