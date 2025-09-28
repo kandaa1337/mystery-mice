@@ -385,3 +385,39 @@ body {
   scrollbar-width: thin;
   scrollbar-color: #facc15 #222; /* Firefox */
 }
+
+@keyframes pulse-bright {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  60% {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse-bright-slow {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.18);
+  }
+}
+
+.animate-pulse-bright {
+  animation: pulse-bright 2.2s ease-in-out infinite;
+}
+
+.animate-pulse-bright-slow {
+  animation: pulse-bright-slow 3.8s ease-in-out infinite;
+}

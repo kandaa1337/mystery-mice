@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import GameRulesPopup from "./GameRulesPopup";
 import SettingsPopup from "./SettingsPopup";
-
+import { COIN_VALUES, LINES } from "./slot/constants";
 export default function BetControls({
   credit = 100000,
   onSpin,
@@ -22,12 +22,13 @@ export default function BetControls({
   // для SettingsPopup (его внутренние контролы)
   const [totalBetSettings, setTotalBetSettings] = useState(2.0);
 
-  // ставки
-  const [bet, setBet] = useState(1);
-  const coinValues = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2];
-  const [coinIndex, setCoinIndex] = useState(5);
-  const coinValue = coinValues[coinIndex];
-  const totalBet = bet * coinValue * 20;
+  const [bet, setBet] = useState(10);
+  const [coinIndex, setCoinIndex] = useState(() => {
+    const i = COIN_VALUES.indexOf(1.2); // default to $1.20 if present
+    return i >= 0 ? i : COIN_VALUES.length - 1;
+  });
+  const coinValue = COIN_VALUES[coinIndex];
+  const totalBet = bet * coinValue * LINES;
 
   // turbo по Space/Enter
   const turboHeldRef = useRef(false);
@@ -39,9 +40,13 @@ export default function BetControls({
 
   // линейка TOTAL BET для +/- по общему знач.
   const allCombos = [];
-  for (let c = 0; c < coinValues.length; c++) {
+  for (let c = 0; c < COIN_VALUES.length; c++) {
     for (let b = 1; b <= 10; b++) {
-      allCombos.push({ bet: b, coinIndex: c, totalBet: b * coinValues[c] * 20 });
+      allCombos.push({
+        bet: b,
+        coinIndex: c,
+        totalBet: b * COIN_VALUES[c] * LINES,
+      });
     }
   }
   const sortedCombos = allCombos.sort((a, b) => a.totalBet - b.totalBet);
@@ -109,7 +114,7 @@ export default function BetControls({
 
   const handleBetMax = () => {
     setBet(10);
-    setCoinIndex(5);
+    setCoinIndex(COIN_VALUES.length - 1);
   };
 
   // единый BET popup (якорный или фуллскрин)
@@ -139,7 +144,7 @@ export default function BetControls({
         </button>
 
         <h2 className="text-center text-yellow-400 font-extrabold text-lg mb-5">
-          BET MULTIPLIER 20x
+          BET MULTIPLIER {LINES}x
         </h2>
 
         <div className="mb-8">
@@ -151,7 +156,12 @@ export default function BetControls({
               className="relative disabled:opacity-40"
               style={{ width: 60, height: 60 }}
             >
-              <Image src="/ui/lessbet_popup.png" alt="-" fill className="object-contain" />
+              <Image
+                src="/ui/lessbet_popup.png"
+                alt="-"
+                fill
+                className="object-contain"
+              />
             </button>
             <div className="bg-black text-white text-lg font-bold px-6 py-4 rounded-md min-w-20 text-center">
               {bet}
@@ -162,7 +172,12 @@ export default function BetControls({
               className="relative disabled:opacity-40"
               style={{ width: 60, height: 60 }}
             >
-              <Image src="/ui/addbet_popup.png" alt="+" fill className="object-contain" />
+              <Image
+                src="/ui/addbet_popup.png"
+                alt="+"
+                fill
+                className="object-contain"
+              />
             </button>
           </div>
         </div>
@@ -176,18 +191,30 @@ export default function BetControls({
               className="relative disabled:opacity-40"
               style={{ width: 60, height: 60 }}
             >
-              <Image src="/ui/lessbet_popup.png" alt="-" fill className="object-contain" />
+              <Image
+                src="/ui/lessbet_popup.png"
+                alt="-"
+                fill
+                className="object-contain"
+              />
             </button>
             <div className="bg-black text-white text-lg font-bold px-6 py-4 rounded-md min-w-24 text-center">
               ${coinValue.toFixed(2)}
             </div>
             <button
-              disabled={coinIndex >= coinValues.length - 1}
-              onClick={() => setCoinIndex((i) => Math.min(coinValues.length - 1, i + 1))}
+              disabled={coinIndex >= COIN_VALUES.length - 1}
+              onClick={() =>
+                setCoinIndex((i) => Math.min(COIN_VALUES.length - 1, i + 1))
+              }
               className="relative disabled:opacity-40"
               style={{ width: 60, height: 60 }}
             >
-              <Image src="/ui/addbet_popup.png" alt="+" fill className="object-contain" />
+              <Image
+                src="/ui/addbet_popup.png"
+                alt="+"
+                fill
+                className="object-contain"
+              />
             </button>
           </div>
         </div>
@@ -206,7 +233,12 @@ export default function BetControls({
               className="relative disabled:opacity-40"
               style={{ width: 60, height: 60 }}
             >
-              <Image src="/ui/lessbet_popup.png" alt="-" fill className="object-contain" />
+              <Image
+                src="/ui/lessbet_popup.png"
+                alt="-"
+                fill
+                className="object-contain"
+              />
             </button>
             <div className="bg-black text-white text-lg font-bold px-6 py-4 rounded-md min-w-28 text-center">
               ${totalBet.toFixed(2)}
@@ -222,7 +254,12 @@ export default function BetControls({
               className="relative disabled:opacity-40"
               style={{ width: 60, height: 60 }}
             >
-              <Image src="/ui/addbet_popup.png" alt="+" fill className="object-contain" />
+              <Image
+                src="/ui/addbet_popup.png"
+                alt="+"
+                fill
+                className="object-contain"
+              />
             </button>
           </div>
         </div>
@@ -259,16 +296,29 @@ export default function BetControls({
               onClick={() => setModal("settings")}
               aria-label="Open settings"
             >
-              <Image src="/ui/settings.png" alt="menu" fill className="object-contain" />
+              <Image
+                src="/ui/settings.png"
+                alt="menu"
+                fill
+                className="object-contain"
+              />
             </button>
 
             <button
               className="relative"
-              style={{ width: `calc(${ICON_WH} * 1.4)`, height: `calc(${ICON_WH} * 1.4)` }}
+              style={{
+                width: `calc(${ICON_WH} * 1.4)`,
+                height: `calc(${ICON_WH} * 1.4)`,
+              }}
               onClick={() => setModal("rules")}
               aria-label="Open rules"
             >
-              <Image src="/ui/info.png" alt="info" fill className="object-contain" />
+              <Image
+                src="/ui/info.png"
+                alt="info"
+                fill
+                className="object-contain"
+              />
             </button>
 
             <button
@@ -276,7 +326,12 @@ export default function BetControls({
               style={{ width: ICON_WH, height: ICON_WH }}
               aria-label="Toggle sound"
             >
-              <Image src="/ui/sound.png" alt="sound" fill className="object-contain" />
+              <Image
+                src="/ui/sound.png"
+                alt="sound"
+                fill
+                className="object-contain"
+              />
             </button>
           </div>
 
@@ -291,14 +346,26 @@ export default function BetControls({
             <div className="flex items-center gap-8 lg:gap-12 flex-wrap justify-center md:justify-start">
               <div className="font-bold text-white">
                 CREDIT
-                <span className="text-yellow-400 pl-2" style={{ fontSize: NUM_FONT }}>
-                  ${credit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                <span
+                  className="text-yellow-400 pl-2"
+                  style={{ fontSize: NUM_FONT }}
+                >
+                  $
+                  {credit.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
               </div>
               <div className="font-bold text-white">
                 BET
-                <span className="text-orange-400 pl-2" style={{ fontSize: NUM_FONT }}>
-                  ${totalBet.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                <span
+                  className="text-orange-400 pl-2"
+                  style={{ fontSize: NUM_FONT }}
+                >
+                  $
+                  {totalBet.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
               </div>
             </div>
@@ -315,7 +382,12 @@ export default function BetControls({
               style={{ width: ICON_WH, height: ICON_WH }}
               aria-label="Decrease bet / open popup"
             >
-              <Image src="/ui/lessbet.png" alt="lessbet" fill className="object-contain" />
+              <Image
+                src="/ui/lessbet.png"
+                alt="lessbet"
+                fill
+                className="object-contain"
+              />
             </button>
 
             <div className="relative flex items-center justify-center">
@@ -326,7 +398,12 @@ export default function BetControls({
                 style={{ width: BIG_BTN_WH, height: BIG_BTN_WH }}
                 aria-label="Spin"
               >
-                <Image src="/ui/play_button.png" alt="spin" fill className="object-contain" />
+                <Image
+                  src="/ui/play_button.png"
+                  alt="spin"
+                  fill
+                  className="object-contain"
+                />
                 <Image
                   src="/ui/play_button_animated.png"
                   alt="spin"
@@ -348,7 +425,12 @@ export default function BetControls({
               style={{ width: ICON_WH, height: ICON_WH }}
               aria-label="Increase bet / open popup"
             >
-              <Image src="/ui/addbet.png" alt="addbet" fill className="object-contain" />
+              <Image
+                src="/ui/addbet.png"
+                alt="addbet"
+                fill
+                className="object-contain"
+              />
             </button>
           </div>
         </div>
@@ -363,26 +445,47 @@ export default function BetControls({
                 onClick={() => setModal("settings")}
                 aria-label="Open settings"
               >
-                <Image src="/ui/settings.png" alt="menu" fill className="object-contain" />
+                <Image
+                  src="/ui/settings.png"
+                  alt="menu"
+                  fill
+                  className="object-contain"
+                />
               </button>
               <button
                 className="relative"
-                style={{ width: `calc(${ICON_WH} * 1.1)`, height: `calc(${ICON_WH} * 1.1)` }}
+                style={{
+                  width: `calc(${ICON_WH} * 1.1)`,
+                  height: `calc(${ICON_WH} * 1.1)`,
+                }}
                 onClick={() => setModal("rules")}
                 aria-label="Open rules"
               >
-                <Image src="/ui/info.png" alt="info" fill className="object-contain" />
+                <Image
+                  src="/ui/info.png"
+                  alt="info"
+                  fill
+                  className="object-contain"
+                />
               </button>
               <button
                 className="relative"
                 style={{ width: ICON_WH, height: ICON_WH }}
                 aria-label="Toggle sound"
               >
-                <Image src="/ui/sound.png" alt="sound" fill className="object-contain" />
+                <Image
+                  src="/ui/sound.png"
+                  alt="sound"
+                  fill
+                  className="object-contain"
+                />
               </button>
             </div>
 
-            <p className="text-white font-extrabold uppercase leading-none" style={{ fontSize: TIP_FONT }}>
+            <p
+              className="text-white font-extrabold uppercase leading-none"
+              style={{ fontSize: TIP_FONT }}
+            >
               HOLD SPACE FOR TURBO
             </p>
           </div>
@@ -390,14 +493,24 @@ export default function BetControls({
           <div className="flex items-center justify-center gap-6">
             <div className="font-bold text-white">
               CREDIT
-              <span className="text-yellow-400 pl-1.5" style={{ fontSize: NUM_FONT }}>
-                ${credit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              <span
+                className="text-yellow-400 pl-1.5"
+                style={{ fontSize: NUM_FONT }}
+              >
+                $
+                {credit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </span>
             </div>
             <div className="font-bold text-white">
               BET
-              <span className="text-orange-400 pl-1.5" style={{ fontSize: NUM_FONT }}>
-                ${totalBet.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              <span
+                className="text-orange-400 pl-1.5"
+                style={{ fontSize: NUM_FONT }}
+              >
+                $
+                {totalBet.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
               </span>
             </div>
           </div>
@@ -412,7 +525,12 @@ export default function BetControls({
               style={{ width: ICON_WH, height: ICON_WH }}
               aria-label="Decrease bet / open popup"
             >
-              <Image src="/ui/lessbet.png" alt="lessbet" fill className="object-contain" />
+              <Image
+                src="/ui/lessbet.png"
+                alt="lessbet"
+                fill
+                className="object-contain"
+              />
             </button>
 
             <button
@@ -422,7 +540,12 @@ export default function BetControls({
               style={{ width: BIG_BTN_WH, height: BIG_BTN_WH }}
               aria-label="Spin"
             >
-              <Image src="/ui/play_button.png" alt="spin" fill className="object-contain" />
+              <Image
+                src="/ui/play_button.png"
+                alt="spin"
+                fill
+                className="object-contain"
+              />
               <Image
                 src="/ui/play_button_animated.png"
                 alt="spin"
@@ -440,7 +563,12 @@ export default function BetControls({
               style={{ width: ICON_WH, height: ICON_WH }}
               aria-label="Increase bet / open popup"
             >
-              <Image src="/ui/addbet.png" alt="addbet" fill className="object-contain" />
+              <Image
+                src="/ui/addbet.png"
+                alt="addbet"
+                fill
+                className="object-contain"
+              />
             </button>
           </div>
 
@@ -458,7 +586,11 @@ export default function BetControls({
           />
         )}
         {modal === "rules" && (
-          <GameRulesPopup key="rules-modal" onClose={() => setModal(null)} />
+          <GameRulesPopup
+            key="rules-modal"
+            onClose={() => setModal(null)}
+            totalBet={totalBet}
+          />
         )}
       </div>
     </div>

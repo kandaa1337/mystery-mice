@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { payoutTable } from "./slot/payoutTable"; // multipliers × TOTAL BET
 
-export default function GameRulesPopup({ onClose }) {
+export default function GameRulesPopup({ onClose, totalBet = 0 }) {
   const [page, setPage] = useState(1);
   const totalPages = 7;
 
@@ -26,16 +27,10 @@ export default function GameRulesPopup({ onClose }) {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-
-    const onTouchStart = (e) => {
-      touchStartXRef.current = e.touches[0].clientX;
-    };
+    const onTouchStart = (e) => (touchStartXRef.current = e.touches[0].clientX);
     const onTouchEnd = (e) => {
       const dx = e.changedTouches[0].clientX - touchStartXRef.current;
-      if (Math.abs(dx) > 60) {
-        if (dx < 0) nextPage();
-        else prevPage();
-      }
+      if (Math.abs(dx) > 60) dx < 0 ? nextPage() : prevPage();
     };
     el.addEventListener("touchstart", onTouchStart, { passive: true });
     el.addEventListener("touchend", onTouchEnd, { passive: true });
@@ -44,6 +39,41 @@ export default function GameRulesPopup({ onClose }) {
       el.removeEventListener("touchend", onTouchEnd);
     };
   }, []);
+
+  // --- dynamic pay lines (× TOTAL BET) ---
+  const fmt$ = (n) =>
+    `$${(Number(n) || 0).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+
+  const SYMBOLS = [
+    { key: "detective_mice.png", name: "Detective" },
+    { key: "mafia_mice.png", name: "Mafia" },
+    { key: "police_mice.png", name: "Police" },
+    { key: "cap.png", name: "Cap" },
+    { key: "cigarate.png", name: "Pipe" },
+    { key: "A.png", name: "A" },
+    { key: "K.png", name: "K" },
+    { key: "Q.png", name: "Q" },
+  ];
+
+  const rows = useMemo(() => {
+    const t = Number(totalBet) || 0;
+    return SYMBOLS.map(({ key, name }) => {
+      const row = payoutTable[key] || {};
+      // thresholds: 15,14,...,5 descending
+      const thresholds = Object.keys(row)
+        .map(Number)
+        .sort((a, b) => b - a);
+      const lines = thresholds.map((th) => {
+        const label = th === 15 ? "15–36" : String(th);
+        const amount = (row[th] || 0) * t;
+        return `${label} → ${fmt$(+amount.toFixed(2))}`;
+      });
+      return { key, name, lines };
+    });
+  }, [totalBet]);
 
   return (
     <div
@@ -54,12 +84,7 @@ export default function GameRulesPopup({ onClose }) {
     >
       <div
         ref={containerRef}
-        className="
-          relative w-full max-w-5xl
-          h-[92vh] sm:h-auto sm:max-h-[90vh]
-          bg-[#111] text-white rounded-2xl shadow-2xl
-          flex flex-col overflow-hidden
-        "
+        className="relative w-full max-w-5xl h-[92vh] sm:h-auto sm:max-h-[90vh] bg-[#111] text-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
       >
         <div className="sticky top-0 z-10 bg-[#111]/95 backdrop-blur px-5 sm:px-8 py-4 border-b border-white/10">
           <button
@@ -82,131 +107,26 @@ export default function GameRulesPopup({ onClose }) {
             {page === 1 && (
               <>
                 <p className="text-center text-gray-300 mb-2 text-sm sm:text-base">
-                  All symbols pay in blocks of minimum 5 symbols connected horizontally or vertically.
+                  All symbols pay in blocks of minimum 5 symbols connected
+                  horizontally or vertically.
                   <br className="hidden sm:block" />
-                  The game is played on a 6x6 grid of symbols.
+                  The game is played on a 6×6 grid of symbols.
+                </p>
+
+                <p className="text-center text-xs sm:text-sm text-gray-400 -mt-1 mb-1">
+                  Payouts below are shown for your current <b>Total Bet</b>:{" "}
+                  {fmt$(totalBet)}
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 text-[13px] sm:text-[14px] w-full">
-                  <SymbolPayout
-                    src="/symbols/detective_mice.png"
-                    alt="Detective"
-                    lines={[
-                      "15–36 → $300.00",
-                      "14 → $140.00",
-                      "13 → $70.00",
-                      "12 → $30.00",
-                      "11 → $15.00",
-                      "10 → $10.00",
-                      "9 → $5.00",
-                      "8 → $4.00",
-                      "7 → $3.50",
-                      "6 → $3.00",
-                      "5 → $2.00",
-                    ]}
-                  />
-                  <SymbolPayout
-                    src="/symbols/mafia_mice.png"
-                    alt="Mafia"
-                    lines={[
-                      "15–36 → $200.00",
-                      "14 → $120.00",
-                      "13 → $60.00",
-                      "12 → $25.00",
-                      "11 → $12.00",
-                      "10 → $8.00",
-                      "9 → $4.00",
-                      "8 → $3.00",
-                      "7 → $2.50",
-                      "6 → $2.00",
-                      "5 → $1.50",
-                    ]}
-                  />
-                  <SymbolPayout
-                    src="/symbols/police_mice.png"
-                    alt="Police"
-                    lines={[
-                      "15–36 → $120.00",
-                      "14 → $80.00",
-                      "13 → $40.00",
-                      "12 → $20.00",
-                      "11 → $9.00",
-                      "10 → $6.00",
-                      "9 → $3.00",
-                      "8 → $2.50",
-                      "7 → $2.00",
-                      "6 → $1.50",
-                      "5 → $1.00",
-                    ]}
-                  />
-                  <SymbolPayout
-                    src="/symbols/cap.png"
-                    alt="Cap"
-                    lines={[
-                      "15–36 → $100.00",
-                      "14 → $50.00",
-                      "13 → $30.00",
-                      "12 → $15.00",
-                      "11 → $7.00",
-                      "10 → $5.00",
-                      "9 → $2.80",
-                      "8 → $2.00",
-                      "7 → $1.80",
-                      "6 → $1.20",
-                      "5 → $0.90",
-                    ]}
-                  />
-                  <SymbolPayout
-                    src="/symbols/cigarate.png"
-                    alt="Pipe"
-                    lines={[
-                      "15–36 → $80.00",
-                      "14 → $40.00",
-                      "13 → $20.00",
-                      "12 → $10.00",
-                      "11 → $6.00",
-                      "10 → $4.00",
-                      "9 → $2.50",
-                      "8 → $2.00",
-                      "7 → $1.50",
-                      "6 → $1.00",
-                      "5 → $0.80",
-                    ]}
-                  />
-                  <SymbolPayout
-                    src="/symbols/A.png"
-                    alt="A"
-                    lines={[
-                      "15–36 → $60.00",
-                      "14 → $30.00",
-                      "13 → $16.00",
-                      "12 → $8.00",
-                      "11 → $4.00",
-                      "10 → $2.50",
-                      "9 → $2.00",
-                      "8 → $1.50",
-                      "7 → $0.80",
-                      "6 → $0.60",
-                      "5 → $0.50",
-                    ]}
-                  />
-                  <SymbolPayout
-                    src="/symbols/K.png"
-                    alt="K"
-                    lines={[
-                      "15–36 → $50.00",
-                      "14 → $24.00",
-                      "13 → $12.00",
-                      "12 → $6.00",
-                      "11 → $4.00",
-                      "10 → $2.50",
-                      "9 → $2.00",
-                      "8 → $1.50",
-                      "7 → $0.80",
-                      "6 → $0.60",
-                      "5 → $0.50",
-                    ]}
-                  />
+                  {rows.map(({ key, name, lines }) => (
+                    <SymbolPayout
+                      key={key}
+                      src={`/symbols/${key}`}
+                      alt={name}
+                      lines={lines}
+                    />
+                  ))}
 
                   <div className="sm:col-span-2 md:col-span-3 lg:col-span-4 text-center mt-1">
                     <div className="inline-flex items-center gap-4">
@@ -226,73 +146,101 @@ export default function GameRulesPopup({ onClose }) {
               </>
             )}
 
+            {/* --- the rest of your pages unchanged --- */}
             {page === 2 && (
               <div className="text-gray-300 text-sm sm:text-base leading-relaxed space-y-4 text-left">
-                <h3 className="text-center font-bold text-lg text-yellow-400">TUMBLE FEATURE</h3>
+                <h3 className="text-center font-bold text-lg text-yellow-400">
+                  TUMBLE FEATURE
+                </h3>
                 <p>
-                  After every spin, winning combinations are paid and all winning symbols disappear except for SCATTER. 
-                  Remaining symbols fall to the bottom and empty positions are replaced by new ones from above. 
-                  Tumbling continues until no more winning combos appear. All wins are added after all tumbles from a base spin.
+                  After every spin, winning combinations are paid and all
+                  winning symbols disappear except for SCATTER. Remaining
+                  symbols fall to the bottom and empty positions are replaced by
+                  new ones from above. Tumbling continues until no more winning
+                  combos appear. All wins are added after all tumbles from a
+                  base spin.
                 </p>
 
-                <h3 className="text-center font-bold text-lg text-yellow-400 mt-6">POWER WILDS</h3>
+                <h3 className="text-center font-bold text-lg text-yellow-400 mt-6">
+                  POWER WILDS
+                </h3>
                 <p>
-                  The WILD substitutes all symbols except SCATTER. Each WILD has a clearance level (1–10). Every time 
-                  it’s part of a win, the level decreases by 1. WILDS remain until their level reaches 1 and they are 
-                  part of a winning combo, then they explode.
+                  The WILD substitutes all symbols except SCATTER. Each WILD has
+                  a clearance level (1–10). Every time it’s part of a win, the
+                  level decreases by 1. WILDS remain until their level reaches 1
+                  and they are part of a winning combo, then they explode.
                 </p>
               </div>
             )}
 
             {page === 3 && (
               <div className="text-gray-300 text-sm sm:text-base leading-relaxed space-y-4 text-left">
-                <h3 className="text-center font-bold text-lg text-yellow-400">FREE SPINS</h3>
+                <h3 className="text-center font-bold text-lg text-yellow-400">
+                  FREE SPINS
+                </h3>
                 <p>
-                  Hit 3+ SCATTERS to trigger 8 free spins. Each triggering SCATTER also pays 1x bet. During free spins, 
-                  WILDS remain between spins. The POWER UP symbol appears, adding +1–3 randomly to clearance levels of all WILDS.
+                  Hit 3+ SCATTERS to trigger 8 free spins. Each triggering
+                  SCATTER also pays 1x bet. During free spins, WILDS remain
+                  between spins. The POWER UP symbol appears, adding +1–3
+                  randomly to clearance levels of all WILDS.
                 </p>
                 <p>
-                  Hit 2+ SCATTERS during free spins to retrigger. Extra spins = SCATTERS hit + 1. Special reels apply.
+                  Hit 2+ SCATTERS during free spins to retrigger. Extra spins =
+                  SCATTERS hit + 1. Special reels apply.
                 </p>
 
-                <h3 className="text-center font-bold text-lg text-yellow-400">MAX WIN</h3>
+                <h3 className="text-center font-bold text-lg text-yellow-400">
+                  MAX WIN
+                </h3>
                 <p>
-                  Max win is 5,000x bet. If reached, the round ends immediately, win is awarded, and all features are forfeited.
+                  Max win is 5,000x bet. If reached, the round ends immediately,
+                  win is awarded, and all features are forfeited.
                 </p>
 
-                <h3 className="text-center font-bold text-lg text-yellow-400">BUY FREE SPINS</h3>
-                <p>
-                  Instantly trigger free spins for 100x current bet.
-                </p>
+                <h3 className="text-center font-bold text-lg text-yellow-400">
+                  BUY FREE SPINS
+                </h3>
+                <p>Instantly trigger free spins for 100x current bet.</p>
               </div>
             )}
 
             {page === 4 && (
               <div className="text-gray-300 text-sm sm:text-base leading-relaxed space-y-4 text-left">
-                <h3 className="text-center font-bold text-lg text-yellow-400">GAME RULES</h3>
+                <h3 className="text-center font-bold text-lg text-yellow-400">
+                  GAME RULES
+                </h3>
                 <p>
-                  High volatility game: fewer payouts on average but higher chance of big wins in short spans.
+                  High volatility game: fewer payouts on average but higher
+                  chance of big wins in short spans.
                 </p>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>Only highest win per combination is paid.</li>
-                  <li>All wins are multiplied by base bet.</li>
+                  <li>
+                    All wins are multiplied by <b>Total Bet</b>.
+                  </li>
                   <li>All values shown as coins.</li>
                   <li>Free Spins total win is awarded after the round ends.</li>
                 </ul>
                 <p>
-                  RTP: 96.49% (96.50% when buying free spins).  
-                  Min bet: $0.20 | Max bet: $240.00
+                  RTP: 96.49% (96.50% when buying free spins). Min bet: $0.20 |
+                  Max bet: $240.00
                 </p>
-                <p>SPACE / ENTER can spin. Malfunction voids all pays and plays.</p>
+                <p>
+                  SPACE / ENTER can spin. Malfunction voids all pays and plays.
+                </p>
               </div>
             )}
 
             {page === 5 && (
               <div className="text-gray-300 text-sm sm:text-base leading-relaxed space-y-4 text-left">
-                <h3 className="text-center font-bold text-lg text-yellow-400">HOW TO PLAY</h3>
+                <h3 className="text-center font-bold text-lg text-yellow-400">
+                  HOW TO PLAY
+                </h3>
                 <p>Use + / – buttons to set your bet, then press SPIN.</p>
 
-                <h3 className="text-center font-bold text-lg text-yellow-400">MAIN GAME INTERFACE</h3>
+                <h3 className="text-center font-bold text-lg text-yellow-400">
+                  MAIN GAME INTERFACE
+                </h3>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>⚙ Opens settings menu.</li>
                   <li>⏩ Cycles spin speeds (normal, quick, turbo).</li>
@@ -307,7 +255,9 @@ export default function GameRulesPopup({ onClose }) {
 
             {page === 6 && (
               <div className="text-gray-300 text-sm sm:text-base leading-relaxed space-y-4 text-left">
-                <h3 className="text-center font-bold text-lg text-yellow-400">SETTINGS MENU</h3>
+                <h3 className="text-center font-bold text-lg text-yellow-400">
+                  SETTINGS MENU
+                </h3>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>Quick Spin – auto spin until release.</li>
                   <li>Intro Screen – toggle intro.</li>
@@ -316,20 +266,26 @@ export default function GameRulesPopup({ onClose }) {
                   <li>Game History – open past results.</li>
                 </ul>
 
-                <h3 className="text-center font-bold text-lg text-yellow-400">INFORMATION SCREEN</h3>
+                <h3 className="text-center font-bold text-lg text-yellow-400">
+                  INFORMATION SCREEN
+                </h3>
                 <p>◀ ▶ scroll pages | ✕ close screen</p>
 
-                <h3 className="text-center font-bold text-lg text-yellow-400">BET MENU</h3>
+                <h3 className="text-center font-bold text-lg text-yellow-400">
+                  BET MENU
+                </h3>
                 <p>Change bet multiplier and values. Max win = 5000x bet.</p>
               </div>
             )}
 
             {page === 7 && (
               <div className="text-gray-300 text-sm sm:text-base leading-relaxed space-y-4 text-left">
-                <h3 className="text-center font-bold text-lg text-yellow-400">AUTOPLAY</h3>
+                <h3 className="text-center font-bold text-lg text-yellow-400">
+                  AUTOPLAY
+                </h3>
                 <p>
-                  Choose the number of auto-spins.  
-                  SKIP SCREENS option skips feature intro/end screens after a short time.
+                  Choose the number of auto-spins. SKIP SCREENS option skips
+                  feature intro/end screens after a short time.
                 </p>
               </div>
             )}
@@ -346,19 +302,20 @@ export default function GameRulesPopup({ onClose }) {
             >
               ◀
             </button>
-
             <div className="flex items-center gap-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
                 <button
                   key={n}
                   onClick={() => goTo(n)}
-                  className={`w-2.5 h-2.5 rounded-full transition
-                    ${n === page ? "bg-yellow-400" : "bg-white/30 hover:bg-white/60"}`}
+                  className={`w-2.5 h-2.5 rounded-full transition ${
+                    n === page
+                      ? "bg-yellow-400"
+                      : "bg-white/30 hover:bg-white/60"
+                  }`}
                   aria-label={`Go to page ${n}`}
                 />
               ))}
             </div>
-
             <button
               onClick={nextPage}
               disabled={page === totalPages}
@@ -378,7 +335,13 @@ function SymbolPayout({ src, alt, lines }) {
   return (
     <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
       <div className="shrink-0 mt-0.5">
-        <Image src={src} alt={alt} width={64} height={64} className="sm:w-[80px] sm:h-[80px]" />
+        <Image
+          src={src}
+          alt={alt}
+          width={64}
+          height={64}
+          className="sm:w-[80px] sm:h-[80px]"
+        />
       </div>
       <div className="text-left leading-5">
         <div className="font-semibold mb-1">{alt}</div>

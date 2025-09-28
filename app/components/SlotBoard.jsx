@@ -27,6 +27,7 @@ import {
   ENTER_MS_PER_CELL,
   EXTRA_MARGIN,
   COLUMN_STAGGER_MS,
+  FAKE_SPIN_MS,
   PRE_SPIN_SPAWN_MS,
 } from "./slot/constants";
 
@@ -42,7 +43,7 @@ import { findWins, resolveWins, randomFiller } from "./slot/winLogic";
 import { payoutTable } from "./slot/payoutTable";
 
 // --- calc payout (из версии друга)
-function calcWinAmount(wins, betPerLine = 1) {
+function calcWinAmount(wins, baseAmount = 1) {
   let total = 0;
   for (const win of wins) {
     const symbol = win.img;
@@ -55,7 +56,7 @@ function calcWinAmount(wins, betPerLine = 1) {
         .sort((a, b) => a - b);
       for (const t of thresholds) if (count >= t) base = payoutRow[t];
     }
-    total += base * betPerLine;
+    total += base * baseAmount;
   }
   return total;
 }
@@ -136,8 +137,45 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
     setPieces(all);
   };
 
-  const runColumn = async (c, newColSyms) => {
+  const runColumnFakeSpin = async (c, durationMs, speedScale = 1) => {
     const { innerH, cellH, gapPx } = dims;
+    const enterMsPerCell = ENTER_MS_PER_CELL / Math.max(0.25, speedScale);
+    const enterSpeedPxPerMs = (cellH + gapPx) / enterMsPerCell;
+
+    const startTop = -cellH - EXTRA_MARGIN;
+    const endDistance = innerH + EXTRA_MARGIN - startTop; // total travel distance
+    const oneFallMs = endDistance / enterSpeedPxPerMs;
+
+    const spawnEvery = Math.max(
+      25,
+      PRE_SPIN_SPAWN_MS / Math.max(0.25, speedScale)
+    );
+    const spawned = [];
+    let k = 0;
+
+    const t0 = performance.now();
+    while (performance.now() - t0 < durationMs) {
+      const id = `fake-${cycle}-${c}-${k++}`;
+      const sym = randomFiller(c, 0); // quick random symbol (may include clearance)
+      spawnPiece({ id, sym, col: c, topY: startTop });
+      spawned.push(
+        (async () => {
+          await raf();
+          await animateToTranslateY(pieceRefs, id, endDistance, oneFallMs);
+          removePiece(id);
+        })()
+      );
+      await sleep(spawnEvery);
+    }
+
+    // Let latest spawned pieces clear past the board before we continue.
+    await Promise.all(spawned);
+  };
+
+  const runColumn = async (c, newColSyms, speedScale = 1) => {
+    const { innerH, cellH, gapPx } = dims;
+    const exitMsPerCell = EXIT_MS_PER_CELL / Math.max(0.25, speedScale);
+    const enterMsPerCell = ENTER_MS_PER_CELL / Math.max(0.25, speedScale);
     const exitSpeedPxPerMs = (cellH + gapPx) / EXIT_MS_PER_CELL;
     const enterSpeedPxPerMs = (cellH + gapPx) / ENTER_MS_PER_CELL;
     const exitStagger = (cellH + gapPx) / exitSpeedPxPerMs;
@@ -158,6 +196,7 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
         })();
       })
     );
+    await runColumnFakeSpin(c, FAKE_SPIN_MS, speedScale);
 
     // ENTER new
     await Promise.all(
@@ -186,7 +225,12 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
   };
 
   // --- Spin handler (exposed to parent) ---
-  const tumbleAll = async () => {
+  const tumbleAll = async (opts = {}) => {
+    const speedScale = Math.max(
+      0.25,
+      Math.min(4, Number(opts.speedMultiplier) || 1)
+    );
+
     if (!grid || !dims || phase !== "idle") return;
 
     // reset any paused state
@@ -206,7 +250,7 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
         (async () => {
           await sleep(c * COLUMN_STAGGER_MS);
           const newColSyms = ROWS.map((r) => nextGrid[r][c]);
-          await runColumn(c, newColSyms);
+          await runColumn(c, newColSyms, speedScale);
         })()
       )
     );
@@ -258,8 +302,8 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
 
     // payout
     try {
-      const betPerLine = (totalBet ?? 0) / 20;
-      const payout = calcWinAmount(wins, betPerLine);
+      const baseAmount = Number(totalBet ?? 0);
+      const payout = calcWinAmount(wins, baseAmount);
       onWin?.(payout);
     } catch (_) {}
 
@@ -275,7 +319,8 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
     }
     for (const key of pendingUsedLRef.current || []) {
       const [rs, cs] = key.split(",");
-      const r = +rs, c = +cs;
+      const r = +rs,
+        c = +cs;
       const cell = grid[r]?.[c];
       if (cell?.img === "level_clearance.png") {
         const cur = typeof cell.clearance === "number" ? cell.clearance : 1;
@@ -295,6 +340,7 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
       "mafia_mice.png",
       "detective_mice.png",
       "cap.png",
+      "level_clearance.png",
     ]);
     const fxList = [];
     const fadePromises = [];
@@ -302,7 +348,8 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
 
     for (const key of toClearSet) {
       const [rs, cs] = key.split(",");
-      const r = +rs, c = +cs;
+      const r = +rs,
+        c = +cs;
       const sym = grid[r][c];
       const name = sym?.img;
 
@@ -353,7 +400,9 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
     }
 
     // Resolve next logical grid
-    const nextGrid = resolveWins(grid, wins, usedL, (x, y) => randomFiller(x, y));
+    const nextGrid = resolveWins(grid, wins, usedL, (x, y) =>
+      randomFiller(x, y)
+    );
 
     // Animate survivors falling + spawn new
     const { cellH, gapPx } = dims;
@@ -459,7 +508,84 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
           className="object-contain"
           priority
         />
+        <div
+          className="
+            absolute top-[-200px] left-2 z-[-1]
+            w-[100px] h-[550px]       /* мобильный */
+            sm:w-[90px] sm:h-[550px] /* планшет */
+            lg:w-[140px] lg:h-[650px] /* десктоп */
+            pointer-events-none
+          "
+        >
+          <Image
+            src="/ui/left_light.png"
+            alt="Left Light"
+            fill
+            className="object-contain"
+            priority
+          />
+          {/* Orange shine */}
+          <Image
+            src="/ui/orange_shine.png"
+            alt="Orange Shine"
+            fill
+            className="object-contain animate-pulse-bright mt-12 pr-10 z-11"
+          />
+          {/* Pink shine */}
+          <Image
+            src="/ui/pink_shine.png"
+            alt="Pink Shine"
+            fill
+            className="object-contain animate-pulse-bright mt-12 pr-10 z-11"
+          />
+        </div>
 
+        <div
+          className="
+            absolute top-[-200px] right-2 z-[-1]
+            w-[100px] h-[550px]
+            sm:w-[90px] sm:h-[550px]
+            lg:w-[140px] lg:h-[650px]
+            pointer-events-none
+          "
+        >
+          <Image
+            src="/ui/right_light.png"
+            alt="Right Light"
+            fill
+            className="object-contain"
+            priority
+          />
+          <Image
+            src="/ui/orange_shine.png"
+            alt="Orange Shine"
+            fill
+            className="object-contain animate-pulse-bright mt-12 pl-10 z-11"
+          />
+          {/* Pink shine */}
+          <Image
+            src="/ui/pink_shine.png"
+            alt="Pink Shine"
+            fill
+            className="object-contain animate-pulse-bright mt-12 pl-10 z-11"
+          />
+        </div>
+        <div
+          className="
+            absolute z-[-1] pointer-events-none
+            w-[100px] h-[550px] left-[280px] top-[-305px]        /* mobile */
+            sm:w-[90px] sm:h-[550px] sm:left-[300px] sm:top-[-305px] /* ipad */
+            lg:w-[190px] lg:h-[650px] lg:left-[-250px] lg:top-[-170px] /* desk */
+          "
+        >
+          <Image
+            src="/ui/logo.png"
+            alt="logo"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
         {/* Play area */}
         <div
           ref={playRef}
