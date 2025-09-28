@@ -1,12 +1,9 @@
 @import "tailwindcss";
 
+/* ===== Theme Vars ===== */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-:root {
-  /* change this to any color you like */
   --clearance-num-color: #dc2626; /* red-600 */
 }
 
@@ -28,4 +25,363 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+@keyframes popupPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-popupPulse {
+  animation: popupPulse 0.25s ease-out forwards;
+}
+/* === Level Clearance (static layout) === */
+.fx-badge {
+  position: relative;
+  aspect-ratio: 209/189;
+  isolation: isolate;
+  --inner-w: 78%;
+  --inner-left: 14%;
+  --inner-top: 36%;
+}
+.fx-badge .layer {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  transform: none;
+  display: block;
+}
+
+/* Layer positions (your original) */
+.fx-badge .paper {
+  width: 100%;
+  left: 5%;
+  top: 5%;
+  z-index: 2;
+}
+.fx-badge .topPaper {
+  width: 84%;
+  left: 7%;
+  top: 7%;
+  z-index: 4;
+}
+.fx-badge .bottomPaper {
+  width: 82%;
+  left: 25%;
+  top: 93%;
+  z-index: 4;
+}
+.fx-badge .border {
+  mix-blend-mode: multiply;
+  width: var(--inner-w);
+  left: var(--inner-left);
+  top: var(--inner-top);
+  z-index: 5;
+}
+.fx-badge .digit,
+.fx-badge .digits {
+  width: 22%;
+  left: 44%;
+  top: 46%;
+  z-index: 7;
+}
+.fx-badge .levelTxt {
+  width: 36%;
+  left: 28%;
+  top: 26%;
+  z-index: 7;
+}
+.fx-badge .clearTxt {
+  width: 70%;
+  left: 21%;
+  top: 101%;
+  z-index: 7;
+}
+.fx-badge .starL {
+  width: 14%;
+  left: 8%;
+  top: 45%;
+  z-index: 6;
+}
+.fx-badge .starR {
+  width: 14%;
+  left: 84%;
+  top: 38%;
+  z-index: 6;
+}
+
+/* Glow (new layer) */
+.fx-badge .glow {
+  width: 100%;
+  left: 9%;
+  top: 30%;
+  z-index: 4; /* above paper, below border */
+  opacity: 0.95;
+  mix-blend-mode: screen; /* nice glow on paper */
+  pointer-events: none;
+}
+
+/* Stamps */
+.fx-badge .winMark,
+.fx-badge .printMark {
+  width: 25%;
+  left: 67%; /* same position for both */
+  top: 10%;
+  z-index: 8; /* above digits/text */
+  image-rendering: auto;
+  mix-blend-mode: multiply; /* ink feel */
+  pointer-events: none;
+}
+
+/* Default: show WIN mark, hide PRINTER */
+.fx-badge .winMark {
+  opacity: 1;
+  transform: rotate(-96deg);
+}
+.fx-badge .printMark {
+  opacity: 0;
+  visibility: hidden;
+  transform: rotate(-96deg);
+  transform-origin: 50% 50%;
+  filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+}
+
+/* === Keyframes === */
+@keyframes fx-paper-jolt {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  15% {
+    transform: translateY(3.6%) rotate(-2.2deg);
+  }
+  55% {
+    transform: translateY(-1.6%) rotate(1.1deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+@keyframes fx-glow-boost {
+  0% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  60% {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(1.02);
+  }
+}
+@keyframes fx-win-fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+/* WIN reveal bounce (ends visible at -96deg) */
+@keyframes fx-stamp-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) rotate(-96deg) translateY(-8%);
+    filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.06) rotate(-96deg) translateY(0%);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-96deg);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+  }
+}
+/* PRINTER: appear → stamp → remove itself */
+@keyframes fx-printer-stamp {
+  0% {
+    opacity: 0;
+    visibility: visible;
+    transform: rotate(-96deg) translateY(-14%) scale(0.96);
+    filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+  }
+  40% {
+    opacity: 1;
+    visibility: visible;
+    transform: rotate(-96deg) translateY(0%) scale(1);
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.35));
+  }
+  60% {
+    opacity: 1;
+    visibility: visible;
+    transform: rotate(-96deg) translateY(0%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+    transform: rotate(-96deg) translateY(-18%) scale(0.98);
+    filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+  }
+}
+
+/* === Timeline (when .playing is added) === */
+/* Paper/glow motion */
+.fx-badge.playing .paper {
+  animation: fx-paper-jolt 1020ms ease-out both;
+}
+.fx-badge.playing .topPaper {
+  animation: fx-paper-jolt 1020ms ease-out 30ms both;
+}
+.fx-badge.playing .bottomPaper {
+  animation: fx-paper-jolt 1020ms ease-out 60ms both;
+}
+.fx-badge.playing .glow {
+  animation: fx-glow-boost 1020ms ease-out 60ms both;
+}
+
+/* 0–220ms: fade current WIN out.
+   260–520ms: bring WIN back with a bounce (and keep it shown). */
+.fx-badge.playing .winMark {
+  animation: fx-win-fade 220ms ease-out 0ms forwards,
+    fx-stamp-in 260ms cubic-bezier(0.2, 0.9, 0.2, 1.1) 560ms forwards;
+}
+
+/* 220–870ms: PRINTER appears, stamps, then removes itself. */
+.fx-badge.playing .printMark {
+  animation: fx-printer-stamp 650ms cubic-bezier(0.2, 0.9, 0.2, 1) 220ms
+    forwards;
+}
+/* === Digit decrement sequence (runs AFTER the stamp animation) === */
+.fx-badge .digitWrap {
+  position: absolute;
+  z-index: 7;
+  overflow: visible;
+  /* left/top are set inline so we can reuse your exact slot */
+  pointer-events: none;
+}
+
+/* two stacked digit groups: current (on top), next (under) */
+.fx-badge .digits-cur,
+.fx-badge .digits-next {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fx-badge .digits-cur {
+  opacity: 1;
+}
+.fx-badge .digits-next {
+  opacity: 0;
+}
+
+/* fire overlay that plays while digits swap */
+.fx-badge .fire {
+  position: absolute;
+  inset: -8% -8% -8% -8%;
+  z-index: 8;
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* keyframes for digits + fire pop */
+@keyframes fx-digit-out {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14%);
+  }
+}
+@keyframes fx-digit-in {
+  0% {
+    opacity: 0;
+    transform: translateY(12%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fx-fire-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+
+/* when digit shift runs */
+.fx-badge.digit-shifting .digits-cur {
+  animation: fx-digit-out 220ms ease-out forwards;
+}
+.fx-badge.digit-shifting .digits-next {
+  animation: fx-digit-in 220ms ease-out 160ms forwards;
+}
+.fx-badge.digit-shifting .fire {
+  animation: fx-fire-pop 1020ms ease-out forwards;
+}
+.fx-badge .fireMask {
+  position: absolute;
+  width: 78%;
+  left: 14%;
+  top: 36%;
+  overflow: hidden; /* clip to the inner_border area */
+  z-index: 8;
+  pointer-events: none;
+}
+.fx-badge .fireOverlay {
+  display: block;
+  width: 100%;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+/* drive the fire animation during the digit shift */
+.fx-badge.digit-shifting .fireOverlay {
+  animation: fx-fire-pop 1020ms ease-out forwards;
+}
+
+.custom-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: #222; /* тёмный фон */
+  border-radius: 8px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: #facc15; /* Tailwind yellow-400 */
+  border-radius: 8px;
+  border: 2px solid #222;
+}
+
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #facc15 #222; /* Firefox */
 }
