@@ -11,6 +11,7 @@ export default function BetControls({
   vwWidth = 95,
   setTotalBet,
   canSpin = true,
+  roundWin = 0,
 }) {
   const [isSpinning, setIsSpinning] = useState(false);
 
@@ -368,6 +369,18 @@ export default function BetControls({
                   })}
                 </span>
               </div>
+              <div className="font-bold text-white">
+                WIN
+                <span
+                  className="text-green-400 pl-2 animate-popupPulse"
+                  style={{ fontSize: NUM_FONT }}
+                >
+                  $
+                  {roundWin.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -490,7 +503,7 @@ export default function BetControls({
             </p>
           </div>
 
-          <div className="flex items-center justify-center gap-6">
+          <div className="flex items-center justify-center gap-1">
             <div className="font-bold text-white">
               CREDIT
               <span
@@ -509,6 +522,18 @@ export default function BetControls({
               >
                 $
                 {totalBet.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                })}
+              </span>
+            </div>
+            <div className="font-bold text-white">
+              WIN
+              <span
+                className=" text-green-400 pl-1.5 animate-popupPulse"
+                style={{ fontSize: NUM_FONT }}
+              >
+                $
+                {roundWin.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                 })}
               </span>

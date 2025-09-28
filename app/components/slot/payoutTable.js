@@ -52,7 +52,7 @@ export const payoutTable = {
     6: 0.6,
     5: 0.45,
   },
-  "cigarette.png": {
+  "cigarate.png": {
     15: 40,
     14: 20,
     13: 10,

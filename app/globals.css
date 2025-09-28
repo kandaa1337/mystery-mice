@@ -421,3 +421,26 @@ body {
 .animate-pulse-bright-slow {
   animation: pulse-bright-slow 3.8s ease-in-out infinite;
 }
+.gif-smooth {
+  image-rendering: auto;
+  filter: blur(0.4px) contrast(1.05);
+  transform: scaleX(-1);
+}
+@keyframes win-float-up {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 8px)) scale(0.85);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% - 26px)) scale(1);
+  }
+}
+.win-amount-pop {
+  animation: win-float-up 1.2s ease-out forwards;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.9);
+}

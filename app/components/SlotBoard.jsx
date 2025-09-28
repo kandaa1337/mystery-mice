@@ -15,6 +15,7 @@ import StaticGrid from "./slot/StaticGrid";
 import PlayPieces from "./slot/PlayPieces";
 import WinOverlay from "./slot/WinOverlay";
 import WinFXLayer, { durationForFx } from "./slot/WinFXLayer";
+import WinAmountPopups from "./slot/WinAmountPopups";
 
 import { usePlayAreaDims } from "./slot/hooks/usePlayAreaDims";
 import { useSpritesPreload } from "./slot/hooks/useSpritesPreload";
@@ -61,6 +62,32 @@ function calcWinAmount(wins, baseAmount = 1) {
   return total;
 }
 
+// --- calc detailed breakdown per win cluster (symbol, count, multiplier, amount) ---
+function calcWinBreakdown(wins, baseAmount = 1) {
+  const items = [];
+  let total = 0;
+
+  for (const win of wins) {
+    const symbol = win.img;
+    const count = win.cells.length; // includes L’s — that’s intended for thresholds
+    const row = payoutTable[symbol];
+    let multiplier = 0;
+
+    if (row) {
+      const thresholds = Object.keys(row)
+        .map(Number)
+        .sort((a, b) => a - b);
+      for (const t of thresholds) if (count >= t) multiplier = row[t];
+    }
+
+    const amount = multiplier * baseAmount;
+    total += amount;
+    items.push({ img: symbol, count, multiplier, amount });
+  }
+
+  return { items, total };
+}
+
 const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
   // --- Layout metrics (design space -> responsive %) ---
   const metrics = useMemo(() => {
@@ -77,7 +104,8 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
       innerDesignH: innerH,
     };
   }, []);
-
+  const [floatPopups, setFloatPopups] = useState([]); // [{r,c,amount}]
+  const [floatKey, setFloatKey] = useState(0);
   // --- Win pause / pending ---
   const [winMarks, setWinMarks] = useState([]); // [{r,c}]
   const [awaiting, setAwaiting] = useState(false);
@@ -300,12 +328,55 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
     const wins = pendingWinsRef.current;
     const usedL = pendingUsedLRef.current;
 
-    // payout
+    // payout (per cluster + total)
     try {
       const baseAmount = Number(totalBet ?? 0);
+      const { items, total } = calcWinBreakdown(wins, baseAmount);
+
+      if (items.length) {
+        const rows = items.map((it) => ({
+          Symbol: it.img.replace(".png", ""),
+          Count: it.count,
+          "Multiplier × Bet": it.multiplier,
+          "Amount ($)": +it.amount.toFixed(2),
+        }));
+
+        console.groupCollapsed(
+          `%cPAYOUT%c  ${rows.length} win${
+            rows.length > 1 ? "s" : ""
+          } — Total $${total.toFixed(2)}`,
+          "background:#22c55e;color:#000;padding:2px 6px;border-radius:6px;font-weight:700",
+          "color:inherit;font-weight:600"
+        );
+        console.table(rows);
+        console.log("Step total:", `$${total.toFixed(2)}`);
+        console.groupEnd();
+      }
+      // Build “one popup per cluster” (top-left cell of each cluster)
+      const popItems = wins
+        .map((w, i) => {
+          const amt = +(items[i]?.amount || 0);
+          if (amt <= 0) return null;
+          const anchor = w.cells
+            .slice()
+            .sort(([r1, c1], [r2, c2]) => r1 - r2 || c1 - c2)[0];
+          return { r: anchor[0], c: anchor[1], amount: amt };
+        })
+        .filter(Boolean);
+      if (popItems.length) {
+        setFloatPopups(popItems);
+        setFloatKey((k) => k + 1);
+        // clear them after the float animation finishes
+        setTimeout(() => setFloatPopups([]), 1300);
+      }
+      onWin?.(total);
+    } catch (_) {
+      // Fallback if anything goes wrong calculating prints
+      const baseAmount = Number(totalBet ?? 0);
       const payout = calcWinAmount(wins, baseAmount);
+      console.log("Payout (total):", `$${payout.toFixed(2)}`);
       onWin?.(payout);
-    } catch (_) {}
+    }
 
     // Cells to clear
     const toClearSet = new Set();
@@ -586,6 +657,21 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
             priority
           />
         </div>
+        <div
+          className="
+            absolute z-[-1] pointer-events-none
+            w-[100px] h-[550px] left-[180px] top-[-305px]        /* mobile */
+            sm:w-[90px] sm:h-[550px] sm:left-[300px] sm:top-[-305px] /* ipad */
+            lg:w-[300px] lg:h-[650px] lg:left-[850px] lg:top-[150px] /* desk */
+          "
+        >
+          <Image
+            src="/mouse.gif"
+            alt="mouse"
+            fill
+            className="object-contain gif-smooth"
+          />
+        </div>
         {/* Play area */}
         <div
           ref={playRef}
@@ -621,6 +707,7 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
 
           {/* Win FX overlay (plays during resolve) */}
           <WinFXLayer dims={dims} items={fxItems} playKey={fxKey} />
+          <WinAmountPopups dims={dims} items={floatPopups} playKey={floatKey} />
 
           {/* Lines always visible */}
           <LinesOverlay dims={dims} />

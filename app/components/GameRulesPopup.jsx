@@ -52,7 +52,7 @@ export default function GameRulesPopup({ onClose, totalBet = 0 }) {
     { key: "mafia_mice.png", name: "Mafia" },
     { key: "police_mice.png", name: "Police" },
     { key: "cap.png", name: "Cap" },
-    { key: "cigarate.png", name: "Pipe" },
+    { key: "cigarate.png", name: "Cigarette" },
     { key: "A.png", name: "A" },
     { key: "K.png", name: "K" },
     { key: "Q.png", name: "Q" },
