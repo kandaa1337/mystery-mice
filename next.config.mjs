@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const isProd = process.env.NODE_ENV === 'production';
 const nextConfig = {
+    basePath: "/mystery-mice",
   reactStrictMode: true,
   images: {
     unoptimized: true, // Disable default image optimization
