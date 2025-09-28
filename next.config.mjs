@@ -1,14 +1,19 @@
-/** @type {import('next').NextConfig} */
-const isProd = process.env.NODE_ENV === 'production';
+/** @type {import("next").NextConfig} */
+const repoName = "mystery-mice";
+const isProd = process.env.NODE_ENV === "production";
+
 const nextConfig = {
-    basePath: "/mystery-mice",
   reactStrictMode: true,
   images: {
     unoptimized: true, // Disable default image optimization
   },
-  assetPrefix: isProd ? '/your-repository-name/' : '',
-  basePath: isProd ? '/your-repository-name' : '',
-  output: 'export'
+  output: "export",
+  assetPrefix: isProd ? `/${repoName}/` : "",
+  basePath: isProd ? `/${repoName}` : "",
+  env: {
+    NEXT_PUBLIC_BASE_PATH: isProd ? `/${repoName}` : "",
+  },
 };
 
 export default nextConfig;
+

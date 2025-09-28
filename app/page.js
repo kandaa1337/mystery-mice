@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import SlotBoard from "./components/SlotBoard";
 import BetControls from "./components/BetControls";
 import GameLoading from "./components/GameLoading";
+import { assetPath } from "./lib/assetPath";
 
 export default function Home() {
   const [ready, setReady] = useState(false);
@@ -60,12 +61,12 @@ export default function Home() {
     <main className="relative aspect-16/9 h-dvh w-dvw overflow-hidden bg-[#0b0f1a] flex flex-col items-center">
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/ui/city.png')" }}
+        style={{ backgroundImage: `url('${assetPath("/ui/city.png")}')` }}
       />
 
       <div className="absolute bottom-0 w-[75%] z-0">
         <img
-          src="/ui/bet_background.png"
+          src={assetPath("/ui/bet_background.png")}
           alt="bet background"
           className="w-full object-cover"
         />

@@ -6,6 +6,7 @@ import { IMG_BASE } from "./symbols";
 import LetterFX from "../LetterFX";
 import CigaretteFX from "../CigaretteFX";
 import CapFX from "../CapFX";
+import { assetPath } from "../../lib/assetPath";
 
 /* ===== Durations (ms) =====
    All FX now start immediately at t=0.
@@ -185,7 +186,7 @@ function FireOnlyFX({
     <div className="relative select-none" style={{ width: size, height: size }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={`/ui/fire/fire-${idx}.png`}
+        src={assetPath(`/ui/fire/fire-${idx}.png`)}
         alt=""
         className="absolute inset-0 m-auto w-[72%] h-[72%] object-contain pointer-events-none"
       />
@@ -229,3 +230,6 @@ function SymbolGifFX({ size = "100%", playKey = 0, basePng, gifSrc }) {
     </div>
   );
 }
+
+
+

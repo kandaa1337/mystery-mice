@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import GameRulesPopup from "./GameRulesPopup";
 import SettingsPopup from "./SettingsPopup";
 import { COIN_VALUES, LINES } from "./slot/constants";
+import { assetPath } from "../lib/assetPath";
 export default function BetControls({
   credit = 100000,
   onSpin,
@@ -158,7 +159,7 @@ export default function BetControls({
               style={{ width: 60, height: 60 }}
             >
               <Image
-                src="/ui/lessbet_popup.png"
+                src={assetPath("/ui/lessbet_popup.png")}
                 alt="-"
                 fill
                 className="object-contain"
@@ -174,7 +175,7 @@ export default function BetControls({
               style={{ width: 60, height: 60 }}
             >
               <Image
-                src="/ui/addbet_popup.png"
+                src={assetPath("/ui/addbet_popup.png")}
                 alt="+"
                 fill
                 className="object-contain"
@@ -193,7 +194,7 @@ export default function BetControls({
               style={{ width: 60, height: 60 }}
             >
               <Image
-                src="/ui/lessbet_popup.png"
+                src={assetPath("/ui/lessbet_popup.png")}
                 alt="-"
                 fill
                 className="object-contain"
@@ -211,7 +212,7 @@ export default function BetControls({
               style={{ width: 60, height: 60 }}
             >
               <Image
-                src="/ui/addbet_popup.png"
+                src={assetPath("/ui/addbet_popup.png")}
                 alt="+"
                 fill
                 className="object-contain"
@@ -235,7 +236,7 @@ export default function BetControls({
               style={{ width: 60, height: 60 }}
             >
               <Image
-                src="/ui/lessbet_popup.png"
+                src={assetPath("/ui/lessbet_popup.png")}
                 alt="-"
                 fill
                 className="object-contain"
@@ -256,7 +257,7 @@ export default function BetControls({
               style={{ width: 60, height: 60 }}
             >
               <Image
-                src="/ui/addbet_popup.png"
+                src={assetPath("/ui/addbet_popup.png")}
                 alt="+"
                 fill
                 className="object-contain"
@@ -298,7 +299,7 @@ export default function BetControls({
               aria-label="Open settings"
             >
               <Image
-                src="/ui/settings.png"
+                src={assetPath("/ui/settings.png")}
                 alt="menu"
                 fill
                 className="object-contain"
@@ -315,7 +316,7 @@ export default function BetControls({
               aria-label="Open rules"
             >
               <Image
-                src="/ui/info.png"
+                src={assetPath("/ui/info.png")}
                 alt="info"
                 fill
                 className="object-contain"
@@ -328,7 +329,7 @@ export default function BetControls({
               aria-label="Toggle sound"
             >
               <Image
-                src="/ui/sound.png"
+                src={assetPath("/ui/sound.png")}
                 alt="sound"
                 fill
                 className="object-contain"
@@ -396,7 +397,7 @@ export default function BetControls({
               aria-label="Decrease bet / open popup"
             >
               <Image
-                src="/ui/lessbet.png"
+                src={assetPath("/ui/lessbet.png")}
                 alt="lessbet"
                 fill
                 className="object-contain"
@@ -412,13 +413,13 @@ export default function BetControls({
                 aria-label="Spin"
               >
                 <Image
-                  src="/ui/play_button.png"
+                  src={assetPath("/ui/play_button.png")}
                   alt="spin"
                   fill
                   className="object-contain"
                 />
                 <Image
-                  src="/ui/play_button_animated.png"
+                  src={assetPath("/ui/play_button_animated.png")}
                   alt="spin"
                   fill
                   className="object-contain ml-3 mt-3 pointer-events-none"
@@ -439,7 +440,7 @@ export default function BetControls({
               aria-label="Increase bet / open popup"
             >
               <Image
-                src="/ui/addbet.png"
+                src={assetPath("/ui/addbet.png")}
                 alt="addbet"
                 fill
                 className="object-contain"
@@ -459,7 +460,7 @@ export default function BetControls({
                 aria-label="Open settings"
               >
                 <Image
-                  src="/ui/settings.png"
+                  src={assetPath("/ui/settings.png")}
                   alt="menu"
                   fill
                   className="object-contain"
@@ -475,7 +476,7 @@ export default function BetControls({
                 aria-label="Open rules"
               >
                 <Image
-                  src="/ui/info.png"
+                  src={assetPath("/ui/info.png")}
                   alt="info"
                   fill
                   className="object-contain"
@@ -487,7 +488,7 @@ export default function BetControls({
                 aria-label="Toggle sound"
               >
                 <Image
-                  src="/ui/sound.png"
+                  src={assetPath("/ui/sound.png")}
                   alt="sound"
                   fill
                   className="object-contain"
@@ -551,7 +552,7 @@ export default function BetControls({
               aria-label="Decrease bet / open popup"
             >
               <Image
-                src="/ui/lessbet.png"
+                src={assetPath("/ui/lessbet.png")}
                 alt="lessbet"
                 fill
                 className="object-contain"
@@ -566,13 +567,13 @@ export default function BetControls({
               aria-label="Spin"
             >
               <Image
-                src="/ui/play_button.png"
+                src={assetPath("/ui/play_button.png")}
                 alt="spin"
                 fill
                 className="object-contain"
               />
               <Image
-                src="/ui/play_button_animated.png"
+                src={assetPath("/ui/play_button_animated.png")}
                 alt="spin"
                 fill
                 className="object-contain ml-2 mt-2 pointer-events-none"
@@ -589,7 +590,7 @@ export default function BetControls({
               aria-label="Increase bet / open popup"
             >
               <Image
-                src="/ui/addbet.png"
+                src={assetPath("/ui/addbet.png")}
                 alt="addbet"
                 fill
                 className="object-contain"
@@ -621,3 +622,5 @@ export default function BetControls({
     </div>
   );
 }
+
+

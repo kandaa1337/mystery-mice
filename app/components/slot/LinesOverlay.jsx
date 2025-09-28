@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { assetPath } from "../../lib/assetPath";
 
 export default function LinesOverlay({ dims }) {
   if (!dims) return null;
@@ -17,7 +18,7 @@ export default function LinesOverlay({ dims }) {
             style={{ left: `${left}px`, width: `${lineW}px` }}
           >
             <Image
-              src="/ui/line.png"
+              src={assetPath("/ui/line.png")}
               alt="Separator"
               fill
               className="object-cover"
@@ -29,3 +30,5 @@ export default function LinesOverlay({ dims }) {
     </div>
   );
 }
+
+

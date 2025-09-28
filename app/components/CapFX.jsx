@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { assetPath } from "../lib/assetPath";
 
 /**
  * CapFX (shake + particles → wait → fire-1..8 → end hidden)
@@ -140,7 +141,7 @@ export default function CapFX({
         <div className="absolute inset-0 grid place-items-center pointer-events-none z-20">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`/ui/glowing_particles/particle_${pFrame}.png`}
+            src={assetPath(`/ui/glowing_particles/particle_${pFrame}.png`)}
             alt=""
             className={inner}
             style={{ filter: "drop-shadow(0 0 10px rgba(255,255,255,0.35))" }}
@@ -153,7 +154,7 @@ export default function CapFX({
         <div className="absolute inset-0 grid place-items-center pointer-events-none z-30">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`/ui/fire/fire-${fireFrame}.png`}
+            src={assetPath(`/ui/fire/fire-${fireFrame}.png`)}
             alt=""
             className={inner}
             draggable={false}
@@ -234,3 +235,6 @@ export default function CapFX({
     </div>
   );
 }
+
+
+

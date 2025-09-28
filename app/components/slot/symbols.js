@@ -1,5 +1,6 @@
 // app/components/slot/symbols.js
-export const IMG_BASE = "/symbols";
+import { assetPath } from "../../lib/assetPath";
+export const IMG_BASE = assetPath("/symbols");
  
 // Keep your existing filenames for preloading, etc.
 export const SYMBOLS = [
@@ -48,3 +49,4 @@ export const makeRandomGrid = () =>
       return { img };
     })
   );
+

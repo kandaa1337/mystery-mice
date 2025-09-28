@@ -1,7 +1,8 @@
 // app/components/slot/symbols.js
+import { assetPath } from "../../../lib/assetPath";
 
 // Public path where your symbol images live
-export const IMG_BASE = "/symbols";
+export const IMG_BASE = assetPath("/symbols");
 
 // File names for all symbols used in the grid
 export const SYMBOLS = [
@@ -54,3 +55,4 @@ export const makeRandomGrid = () =>
       return { img };
     })
   );
+

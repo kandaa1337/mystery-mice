@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { assetPath } from "../lib/assetPath";
 import { payoutTable } from "./slot/payoutTable"; // multipliers × TOTAL BET
 
 export default function GameRulesPopup({ onClose, totalBet = 0 }) {
@@ -122,7 +123,7 @@ export default function GameRulesPopup({ onClose, totalBet = 0 }) {
                   {rows.map(({ key, name, lines }) => (
                     <SymbolPayout
                       key={key}
-                      src={`/symbols/${key}`}
+                      src={assetPath(`/symbols/${key}`)}
                       alt={name}
                       lines={lines}
                     />
@@ -131,7 +132,7 @@ export default function GameRulesPopup({ onClose, totalBet = 0 }) {
                   <div className="sm:col-span-2 md:col-span-3 lg:col-span-4 text-center mt-1">
                     <div className="inline-flex items-center gap-4">
                       <Image
-                        src="/symbols/scatter.png"
+                        src={assetPath("/symbols/scatter.png")}
                         alt="Scatter"
                         width={72}
                         height={72}
@@ -354,3 +355,5 @@ function SymbolPayout({ src, alt, lines }) {
     </div>
   );
 }
+
+

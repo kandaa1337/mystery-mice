@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { assetPath } from "../lib/assetPath";
 
 /**
  * CigaretteFX (UNDER → WAIT → FIRE)
@@ -82,7 +83,7 @@ export default function CigaretteFX({
     timers.current = {};
   }
 
-  const particleSrc = `/ui/cigarette/glowing_particles_${pIdx}.png`;
+  const particleSrc = assetPath(`/ui/cigarette/glowing_particles_${pIdx}.png`);
 
   return (
     <div className="relative select-none" style={{ width: size, height: size }}>
@@ -115,7 +116,7 @@ export default function CigaretteFX({
               const img = e.currentTarget;
               if (!img.dataset.fallback) {
                 img.dataset.fallback = "1";
-                img.src = `/ui/glowing_particles/particle_${pIdx}.png`;
+                img.src = assetPath(`/ui/glowing_particles/particle_${pIdx}.png`);
               }
             }}
             style={{ filter: "drop-shadow(0 0 10px rgba(255,255,255,0.35))" }}
@@ -127,7 +128,7 @@ export default function CigaretteFX({
       {phase === "fire" && (
         <div className="absolute inset-0 grid place-items-center pointer-events-none z-20">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`/ui/fire/fire-${fIdx}.png`} alt="" className={inner} />
+          <img src={assetPath(`/ui/fire/fire-${fIdx}.png`)} alt="" className={inner} />
         </div>
       )}
 
@@ -164,3 +165,7 @@ export default function CigaretteFX({
     </div>
   );
 }
+
+
+
+

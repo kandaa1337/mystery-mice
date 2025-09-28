@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { assetPath } from "../lib/assetPath";
 
 /**
  * Layered Level-Clearance badge with chained sequences:
@@ -130,43 +131,43 @@ export default function ClearanceBadge({
     <div style={{ width: size, marginTop: offset }} className={className}>
       <div ref={rootRef} className="fx-badge">
         {/* glow */}
-        <img className="layer glow" src="/symbols/clearance/glow.png" alt="" />
+        <img className="layer glow" src={assetPath("/symbols/clearance/glow.png")} alt="" />
 
         {/* paper stack */}
         <img
           className="layer bottomPaper"
-          src="/symbols/clearance/bottom_paper.png"
+          src={assetPath("/symbols/clearance/bottom_paper.png")}
           alt=""
         />
         <img
           className="layer topPaper"
-          src="/symbols/clearance/top_paper.png"
+          src={assetPath("/symbols/clearance/top_paper.png")}
           alt=""
         />
         <img
           className="layer paper"
-          src="/symbols/clearance/paper.png"
+          src={assetPath("/symbols/clearance/paper.png")}
           alt=""
         />
 
         {/* border */}
         <img
           className="layer border"
-          src="/symbols/clearance/inner_border.png"
+          src={assetPath("/symbols/clearance/inner_border.png")}
           alt=""
         />
 
         {/* stars & labels */}
-        <img className="layer starL" src="/symbols/clearance/star.png" alt="" />
-        <img className="layer starR" src="/symbols/clearance/star.png" alt="" />
+        <img className="layer starL" src={assetPath("/symbols/clearance/star.png")} alt="" />
+        <img className="layer starR" src={assetPath("/symbols/clearance/star.png")} alt="" />
         <img
           className="layer levelTxt"
-          src="/symbols/clearance/level.png"
+          src={assetPath("/symbols/clearance/level.png")}
           alt="LEVEL"
         />
         <img
           className="layer clearTxt"
-          src="/symbols/clearance/clearance.png"
+          src={assetPath("/symbols/clearance/clearance.png")}
           alt="CLEARANCE"
         />
 
@@ -183,7 +184,7 @@ export default function ClearanceBadge({
             {curChars.map((ch, i) => (
               <img
                 key={`cur-${i}`}
-                src={`/symbols/clearance/digits/${ch}.png`}
+                src={assetPath(`/symbols/clearance/digits/${ch}.png`)}
                 alt={ch}
                 style={{ width: `${imgWidthPct(curChars.length)}%` }}
               />
@@ -198,7 +199,7 @@ export default function ClearanceBadge({
             {nextChars.map((ch, i) => (
               <img
                 key={`next-${i}`}
-                src={`/symbols/clearance/digits/${ch}.png`}
+                src={assetPath(`/symbols/clearance/digits/${ch}.png`)}
                 alt={ch}
                 style={{ width: `${imgWidthPct(nextChars.length)}%` }}
               />
@@ -213,7 +214,7 @@ export default function ClearanceBadge({
         >
           <img
             className="fireOverlay"
-            src={`/ui/fire/fire-${fireFrame}.png`}
+            src={assetPath(`/ui/fire/fire-${fireFrame}.png`)}
             alt=""
           />
         </div>
@@ -221,15 +222,18 @@ export default function ClearanceBadge({
         {/* stamps */}
         <img
           className="layer winMark"
-          src="/symbols/clearance/win_mark.png"
+          src={assetPath("/symbols/clearance/win_mark.png")}
           alt="WIN"
         />
         <img
           className="layer printMark"
-          src="/symbols/clearance/print_win_mark.png"
+          src={assetPath("/symbols/clearance/print_win_mark.png")}
           alt="PRINTER"
         />
       </div>
     </div>
   );
 }
+
+
+

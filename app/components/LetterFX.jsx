@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { assetPath } from "../lib/assetPath";
 
 /**
  * LetterFX (one-shot)
@@ -112,12 +113,12 @@ export default function LetterFX({
         <>
           <div className="absolute inset-0 grid place-items-center pointer-events-none z-20" key={`under-${playKey}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/ui/fire/fire_under_${underIdx}.png`} alt="" className={inner} />
+            <img src={assetPath(`/ui/fire/fire_under_${underIdx}.png`)} alt="" className={inner} />
           </div>
           <div className="absolute inset-0 grid place-items-center pointer-events-none z-20" key={`particles-${playKey}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`/ui/glowing_particles/particle_${particleIdx}.png`}
+              src={assetPath(`/ui/glowing_particles/particle_${particleIdx}.png`)}
               alt=""
               className={inner}
               style={{ filter: "drop-shadow(0 0 10px rgba(255,255,255,0.35))" }}
@@ -130,7 +131,7 @@ export default function LetterFX({
       {phase === "fire" && (
         <div className="absolute inset-0 grid place-items-center pointer-events-none z-20" key={`fire-${playKey}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`/ui/fire/fire-${fireIdx}.png`} alt="" className={inner} />
+          <img src={assetPath(`/ui/fire/fire-${fireIdx}.png`)} alt="" className={inner} />
         </div>
       )}
 
@@ -178,3 +179,5 @@ export default function LetterFX({
     </div>
   );
 }
+
+

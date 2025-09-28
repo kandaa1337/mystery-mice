@@ -16,6 +16,7 @@ import PlayPieces from "./slot/PlayPieces";
 import WinOverlay from "./slot/WinOverlay";
 import WinFXLayer, { durationForFx } from "./slot/WinFXLayer";
 import WinAmountPopups from "./slot/WinAmountPopups";
+import { assetPath } from "../lib/assetPath";
 
 import { usePlayAreaDims } from "./slot/hooks/usePlayAreaDims";
 import { useSpritesPreload } from "./slot/hooks/useSpritesPreload";
@@ -573,7 +574,7 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
       >
         {/* Border */}
         <Image
-          src="/ui/slot_border.png"
+          src={assetPath("/ui/slot_border.png")}
           alt="Slot Border"
           fill
           className="object-contain"
@@ -589,7 +590,7 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
           "
         >
           <Image
-            src="/ui/left_light.png"
+            src={assetPath("/ui/left_light.png")}
             alt="Left Light"
             fill
             className="object-contain"
@@ -597,14 +598,14 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
           />
           {/* Orange shine */}
           <Image
-            src="/ui/orange_shine.png"
+            src={assetPath("/ui/orange_shine.png")}
             alt="Orange Shine"
             fill
             className="object-contain animate-pulse-bright mt-12 pr-10 z-11"
           />
           {/* Pink shine */}
           <Image
-            src="/ui/pink_shine.png"
+            src={assetPath("/ui/pink_shine.png")}
             alt="Pink Shine"
             fill
             className="object-contain animate-pulse-bright mt-12 pr-10 z-11"
@@ -621,21 +622,21 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
           "
         >
           <Image
-            src="/ui/right_light.png"
+            src={assetPath("/ui/right_light.png")}
             alt="Right Light"
             fill
             className="object-contain"
             priority
           />
           <Image
-            src="/ui/orange_shine.png"
+            src={assetPath("/ui/orange_shine.png")}
             alt="Orange Shine"
             fill
             className="object-contain animate-pulse-bright mt-12 pl-10 z-11"
           />
           {/* Pink shine */}
           <Image
-            src="/ui/pink_shine.png"
+            src={assetPath("/ui/pink_shine.png")}
             alt="Pink Shine"
             fill
             className="object-contain animate-pulse-bright mt-12 pl-10 z-11"
@@ -650,7 +651,7 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
           "
         >
           <Image
-            src="/ui/logo.png"
+            src={assetPath("/ui/logo.png")}
             alt="logo"
             fill
             className="object-contain"
@@ -666,7 +667,7 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
           "
         >
           <Image
-            src="/mouse.gif"
+            src={assetPath("/mouse.gif")}
             alt="mouse"
             fill
             className="object-contain gif-smooth"
@@ -732,3 +733,5 @@ const SlotBoard = forwardRef(({ onStateChange, onWin, totalBet }, ref) => {
 });
 
 export default SlotBoard;
+
+
